@@ -1,0 +1,261 @@
+
+                        ###############################
+                        #           README            #
+                        #                             #
+                        # Nume Proiect: Mini Database #
+                        #   Creat de: Apostol Teodor  #
+                        #        Grupa: 322CC         #
+                        #     Deadline: 05.04.2018    #
+                        #                             #
+                        ###############################
+
+
+
+	Schema proiectului:
+    ARHIVA
+    |   
+    |   mini_database.rkt
+    |   tester.rkt
+    |   README
+    |
+    O--O
+
+    Voi detalia pentru fiecare task modul de implementare.
+
+
+    -------------------------------- Task 1 --------------------------------
+                        (Definirea elementelor de control)
+
+
+        Baza de date db este o lista de lista de forma: 
+    '((tabela 1) (tabela 2) ... (tabela n))
+
+    unde <tabela k> reprezinta o tabela.
+
+        O tabela este si ea la randul ei o lista de liste de forma:
+    '("Nume Tabela" (("Col 1" "Col 2") ("1.info 1" "1.info 2")))
+        Cu alte cuvinte, primul element este numele tabelei, al doilea este o alta
+    lista: Primul element este header-ul tabelei, adica o lista ce contine numele
+    coloanelor, iar incepand de la cel de-al doilea element avem intrarile.
+    Identificarea elementelor unei intrari cu coloanele se face pe baza indexului.
+
+    ("Student" (("Nume" "Prenume") ("Apostol" "Teodor")))
+                    0       1           0         1
+
+    "Nume" are indexul 0 in antet, deci elementul cu indexul 0 din fiecare intrare
+    va reprezenta numele studentului. Pe acelasi principiu putem identifica prenumele.
+
+        Functiile utilizate in vederea rezolvarii acestui task sunt:
+
+    init-database()     ->      Intoarce o lista vida '(), adica o baza de date
+                                goala.
+
+    create-table()      ->      Va crea o lista de forma ("nume" (<antet_tabela>))
+                                cum am explicat mai sus.
+
+    get-name()          ->      Extrage primul element din tabela, acesta fiind
+                                numele tabelei.
+
+    get-columns()       ->      Extrage primul element din al doilea element al
+                                tabelei: ("nume" ((<antet>) (<intrare1>)))
+                                                   |-----|
+    get-tables()        ->      Cum baza de date e o simpla lista de tabele, functia
+                                va intoare baza de date.
+
+    get-table()         ->      Foloseste (filter) pentru a extrage lista cu tabela care
+                                corespunde ca nume cu cea data ca parametru. Apoi
+                                folosind (car) va extrage tabela din lista.
+
+    add-table()         ->      Stiind ca apply imi permite sa aplic o functie pe
+                                doua liste, intorcand una singura, am ales sa aplic
+                                list, pentru a adauga elementul laa multime. 
+                                Astfel am adaugat o noua tabela.
+
+    OBS: Aceasta metoda de "append" o voi folosi si la celelalte taskuri.
+
+    remove-table()      ->      Elimin tabela folosind (remove) si extragand-o cu
+                                get-table().
+
+
+    -------------------------------- Task 2 --------------------------------
+                                (Operatia insert)
+
+
+        Pe langa functia de baza insert() pentru rezolvarea acestui task, am
+    definit 3 functii auxiliare.
+
+    generate-record()   ->      Functia primeste ca parametri coloanele tabelei
+                                si record-ul (informatiile ce vor fi inserate).
+                                Functia parcurge in mod recursiv coloanele si
+                                la fiecare pas introduce in lista rezultat
+                                elementele din record. Acestea sunt extrase
+                                folosind (filter) pentru a gasi elementul care
+                                corespunde coloanei curente. Apoi aceste este folosit
+                                cu ajutorul unui (let).
+                                Adaugarea la lista se face prin metoda folosita in
+                                add-table(). Daca nu exista informatie in record
+                                adaugam '().
+
+    replace-null()      ->      Inlocuieste toate aparitiile lui '() cu 'null.
+
+    add-record()        ->      Functia adauga la tabela intrarea generata de
+                                generate-record() folosind aceeasi metoda de append
+                                mentionata mai sus. 
+
+    ------------------------------------------------------------------------
+    insert()            ->      Aici aplicam modificarile la baza de date utilizand (map).
+                                Parcurgem baza de date. Daca tabela curenta nu este cea
+                                cautata, o lasam nemodificata. Daca este cea cautata
+                                aplicam functiile de mai sus pentru a adauga noua intrare.
+
+
+    -------------------------------- Task 3 --------------------------------
+                               ( a) Simple select)
+
+
+        Pe langa functia simple-select() am mai creat 3 functii auxiliare.
+
+    get-pos()           ->      Extrage un element dintr-o lista de la un anumit index
+
+    multi-get-pos()     ->      Are un rol similar cu get-pos() insa mai complex. Aceasta
+                                functie se va folosi de get-pos() pentru a extrage dintr-o
+                                lista de lista, elementele de la pozitia index din fiecare
+                                lista.
+                                Cum am spus la Task 1: Identificarea elementelor dintr-o
+                                intrare se face pe baza indexului. Deci pentru a extrage
+                                o coloana, Vom extrage din fiecare intrare (lista) elementul
+                                corespunzator coloanei
+
+    get-index()         ->      Cu ajutorul acestei functii vom determina indexul coloanei
+                                pe care il vom folosi ulterior cu functia multi-get-pos().
+
+    ------------------------------------------------------------------------
+    simple-select()     ->      Functia parcurge in mod recursiv coloanele tabelei si cu
+                                ajutorul functiilor definite mai sus va construi lista de
+                                liste: ((<elemente coloana 1>) (<elemente coloana 2>)).
+                                Pentru construirea functiei folosesc metoda de append pe
+                                care am folosit-o si pana acum si de asemenea folosesc
+                                metoda remove-nulls() pe care o voi explica la task-ul
+                                cu operatia delete.
+
+
+    -------------------------------- Task 3 --------------------------------
+                                  ( b) Select)
+
+
+        Pentru rezolvarea acestui task am implementat 16 functii pe langa select()
+    Mentionez ca functiile au fost implementate pentru a fi mai clar codul, evitand
+    in unele locuri utilizarea de functii anonime.
+
+        In mare, ideea selectului este urmatoarea: Iau toata tabela si filtrez
+    toate elementele care indeplinesc conditiile. Din aceste elemente voi selecta
+    coloanele necesare selectarii si unde este cazul aplic operatiile.
+        Pentru fiecare operatie am cate o functie.
+
+    Functiile sunt urmatoarele:
+
+    cond-op()           ->      Extrage comparatorul din conditie.
+
+    cond-column()       ->      Extrage coloana careia i se aplica conditia.
+
+    cond-with()         ->      Extrage parametrul cu care se compara coloana.
+
+
+    conditionet-table() ->      Folosind filter, pastrez din tabela doar elementele
+                                care satisfac conditia. Verificarea e facuta utilizand
+                                cele trei functii pentru prelucrarea conditiei.
+                                Conditiile sunt parcurse recursiv, "suprapunand" filtrele.
+
+
+    min()               ->      Functia extrage elementul minim dintr-o lista (folosind foldr).
+
+    max()               ->      Pe acelasi principiu extrage maximul dintr-o lista.
+
+    count_all()         ->      Numara cate elemente sunt intr-o lista (ia in considerare si
+                                suplicatele)
+
+    count()             ->      Numara cate elemente sunt intr-o lista (nu ia in considerare
+                                duplicatele)
+
+    sum()               ->      Calculeaza suma elementelor dintr-o lista
+
+    avg()               ->      Calculeaza media aritmetica a elementelor (sum() / count_all())
+
+    OBS: Toate aceste functii se folosesc pentru a opera pe selectarea coloanei.
+    OBS: Toate aceste functii (in afara de count()) parcurg direct elementele tabelei si folosesc
+    get-pos().
+
+    remove-simple()     ->      Elimina o aparitie a unui element dintr-o lista de numere.
+
+    get-min-simple()    ->      Extrage minimul dintr-o lista de numere
+
+    get-max-simple()    ->      Extrage maximul dintr-o lista de numere
+
+
+    sort-asc()          ->      Sorteaza crescator o lista de numere folosind
+                                get-min-simple() si remove-simple().
+                                Practic, adauga elementul minim pe prima pozitie si apoi il
+                                elimina. Repeta acest lucru recursiv pana ajunge sa obtina o
+                                lista goala din care sa aleaga minimul. Atunci se termina lista.
+
+    sort-desc()         ->      Functioneaza pe exact acelasi principiu doar ca extrage
+                                mai intai maximul.
+
+    manage-columns()    ->      Parcurge recursiv coloanele date ca parametru functiei select.
+                                Si in functie de acestea aplica (sau nu) functiile de mai sus.
+                                Mai intai verifica daca elementul curent e o pereche. Daca nu este
+                                se adauga la rezultat intreaga coloana. Daca este vorba de o pereche
+                                se deduce faptul ca e vorba de o operatie pe coloana si astfel se
+                                intra intr-un if pentru a determina cum trebuie prelucrata mai departe
+                                coloana, pe baza functiilor mentionate anterior.
+
+
+    select()            ->      Functia apeleaza manage-columns() pasand argumentele prelucrate pentru
+                                o mai usoara gestionare.
+
+
+    -------------------------------- Task 4 --------------------------------
+                                    (Update)
+
+
+        In afara de functia update() am mai folosit 3 functii auxiliare.
+
+    update-record()     ->      Functioneaza pe un principiu similar cu functia
+                                generate-record, folosita la INSERT. Singura diferenta
+                                este ca acum primeste ca parametru si lista de intrari
+                                a tabelei si in loc sa adauge null unde nu avem elemente
+                                in record, va adauga vechiul element care se afla pe
+                                pozitia respectiva.
+
+    choose-entry()      ->      Va parcurge cu (map) toate intrarile tabelei si daca
+                                acestea satisfac conditiile (verificare facuta cu
+                                functia conditioned-table() de la select) le updateaza
+                                cu update-record(). Daca nu, raman neschimbate.
+
+    build-table()       ->      Functia construieste un tabel nou pe care aplica modificarile.
+                                Se foloseste de choose-entry() pentru a gestiona intrarile.
+
+
+    update()            ->      Aplica folosind (map) modificarile asupra bazei de date generate
+                                prin apelul functiei build-table().
+
+
+    -------------------------------- Task 5 --------------------------------
+                                    (Delete)
+
+
+        Pentru rezolvarea acestui task voi refolosi functie build-table(),
+    functia conditioned-table() si voi folosi remove-entry().
+
+    remove-entry()      ->      Parcurge toate intrarile unui tabel si le elimina cu (filter)
+                                pe toate cele care satisfac conditia.
+                                Verificarea se face cu un apel al functiei conditioned-table().
+
+    Dupa eliminarea intrarilor respective se va reconstrui tabelul, exact ca la taskul anterior.
+
+    remove-nulls()      ->      Transforma o lista de forma '(() () ()) in '().
+
+
+
+    Timpul alocat pentru rezolvarea temei a fost de aproximativ 48 de ore si consider ca
+    efectuand-o am inteles mult mai bine programarea functionala.
